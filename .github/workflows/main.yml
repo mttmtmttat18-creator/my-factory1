@@ -1,0 +1,31 @@
+name: Build APK
+on: [push] # سيعمل تلقائياً عند كل عملية رفع من Spck
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - name: Install Buildozer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pip zip unzip openjdk-17-jdk libffi-dev libssl-dev
+          pip3 install --user buildozer
+      - name: Extract and Build
+        run: |
+          unzip -o project.zip -d ./myapp
+          cd myapp
+          # إنشاء ملف إعدادات افتراضي
+          /home/runner/.local/bin/buildozer init
+          # أمر البناء (تعديل بسيط لسرعة البناء)
+          /home/runner/.local/bin/buildozer -v android debug
+      - name: Upload APK
+        uses: actions/upload-artifact@v2
+        with:
+          name: My-Final-App
+          path: myapp/bin/*.apk
+
